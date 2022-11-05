@@ -1,0 +1,23 @@
+#!/bin/bash
+arch=`arch`
+cd /tmp/
+if [[ "$arch" == "x86_64" ]]; then
+  version=`wget -qO- -t1 -T2 "https://api.github.com/repos/XTLS/Xray-core/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g'`
+  echo "Downloading xray-$arch.zip..."
+  wget -qO Xray-linux-64.zip "https://github.com/XTLS/Xray-core/releases/download/$version/Xray-linux-64.zip"
+  unzip Xray-linux-64.zip && install xray /usr/local/bin/xray
+  if [ $? -ne 0 ]; then
+    echo "unzip error!"
+    exit -1
+  fi
+elif [[ "$arch" == "aarch64" ]]; then
+  version=`wget -qO- -t1 -T2 "https://api.github.com/repos/XTLS/Xray-core/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g'`
+  echo "Downloading xray-$arch.zip..."
+  wget -qO Xray-linux-arm64-v8a.zip "https://github.com/XTLS/Xray-core/releases/download/$version/Xray-linux-arm64-v8a.zip"
+  unzip Xray-linux-arm64-v8a.zip && install xray /usr/local/bin/xray
+ if [ $? -ne 0 ]; then
+    echo "unzip error!"
+    exit -1
+  fi
+fi
+rm -rf /tmp/*

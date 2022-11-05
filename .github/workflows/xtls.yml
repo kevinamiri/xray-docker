@@ -1,0 +1,32 @@
+name: build XTLS images
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  buildx:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - # Add support for more platforms with QEMU (optional)
+        # https://github.com/docker/setup-qemu-action
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Get XTLS version and build
+        env:
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          HUB_TOKEN: ${{ secrets.HUB_TOKEN }}
+        run: |
+          cp Dockerfile.XTLS Dockerfile
+          chmod +x build.XTLS
+          echo $GHCR_TOKEN | docker login ghcr.io -u ${{github.repository_owner}} --password-stdin
+          docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/kevinamiri/xray --push .
+          docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/kevinamiri/xray:`wget -qO- -t1 -T2 "https://api.github.com/repos/XTLS/Xray-core/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g'` --push .
+          echo $HUB_TOKEN | docker login -u fly97 --password-stdin
+          docker buildx build --platform linux/amd64,linux/arm64 -t fly97/xray --push .
+          docker buildx build --platform linux/amd64,linux/arm64 -t fly97/xray:`wget -qO- -t1 -T2 "https://api.github.com/repos/XTLS/Xray-core/releases/latest" | grep "tag_name" | head -n 1 | awk -F ":" '{print $2}' | sed 's/\"//g;s/,//g;s/ //g'` --push .

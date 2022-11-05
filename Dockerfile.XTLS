@@ -1,0 +1,8 @@
+FROM ubuntu:20.04
+COPY build.XTLS /usr/local/bin/build.sh
+WORKDIR /usr/local/bin/ 
+RUN set -ex \
+  && apt-get update \
+  && apt-get install wget ca-certificates unzip -y
+RUN ["/usr/local/bin/build.sh"]
+ENTRYPOINT [ "/usr/local/bin/xray" ]
