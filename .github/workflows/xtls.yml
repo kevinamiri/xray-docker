@@ -19,7 +19,7 @@ jobs:
 
       - name: Get XTLS version and build
         env:
-          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cp Dockerfile.XTLS Dockerfile
           chmod +x build.XTLS
